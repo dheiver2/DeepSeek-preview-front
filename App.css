@@ -5,6 +5,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #f0f2f5;
 }
 
 .header {
@@ -12,20 +13,38 @@
   color: white;
   padding: 1rem;
   border-radius: 8px 8px 0 0;
+  position: relative;
 }
 
 .header h1 {
   margin: 0;
   font-size: 1.5rem;
+  text-align: center;
+}
+
+.error-banner {
+  position: absolute;
+  bottom: -40px;
+  left: 0;
+  right: 0;
+  background-color: #ff4444;
+  color: white;
+  padding: 8px;
+  text-align: center;
+  border-radius: 4px;
+  z-index: 100;
+  font-size: 14px;
 }
 
 .chat-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #f5f5f5;
+  background: white;
   border-radius: 0 0 8px 8px;
   overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-top: 20px;
 }
 
 .messages {
@@ -38,10 +57,11 @@
 }
 
 .message {
-  max-width: 80%;
+  max-width: 85%;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 12px;
   white-space: pre-wrap;
+  line-height: 1.5;
 }
 
 .message.user {
@@ -52,25 +72,56 @@
 
 .message.assistant {
   align-self: flex-start;
-  background-color: white;
+  background-color: #f0f2f5;
   color: #1a1a1a;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .message.error {
   align-self: flex-start;
-  background-color: #ff3b30;
+  background-color: #ff4444;
   color: white;
 }
 
-.code-block {
-  background-color: #1a1a1a;
-  color: #fff;
-  padding: 12px;
-  border-radius: 6px;
+.message code {
+  background-color: #2d2d2d;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9em;
+}
+
+.message pre {
+  margin: 8px 0;
+  border-radius: 8px;
   overflow-x: auto;
-  font-family: monospace;
-  margin: 0;
+}
+
+.message.loading {
+  background-color: #f0f2f5;
+  min-width: 60px;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  justify-content: center;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background-color: #007aff;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
 }
 
 .input-form {
@@ -85,8 +136,15 @@ input {
   flex: 1;
   padding: 12px;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #007aff;
+  box-shadow: 0 0 0 2px rgba(0,122,255,0.2);
 }
 
 button {
@@ -94,22 +152,44 @@ button {
   background-color: #007aff;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  min-width: 100px;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background-color: #0056b3;
+  transform: translateY(-1px);
 }
 
 button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+  transform: none;
 }
 
 input:disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  .message {
+    max-width: 90%;
+  }
+
+  .input-form {
+    padding: 10px;
+  }
+
+  button {
+    padding: 12px 16px;
+    min-width: 80px;
+  }
 }
