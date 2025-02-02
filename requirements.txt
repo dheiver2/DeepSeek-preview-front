@@ -1,14 +1,18 @@
-# Frontend Dependencies
+# Frontend Core Dependencies
 react@18.2.0
 react-dom@18.2.0
 axios@1.6.7
 react-scripts@5.0.1
-react-markdown@9.0.1
-react-syntax-highlighter@15.5.0
 
 # Development Requirements
 Node.js >= 18.0.0
 npm >= 8.0.0
 
 # Environment Variables Required
-REACT_APP_API_URL=https://deepseek-api.onrender.com
+REACT_APP_API_URL=https://deepseek-preview-api.onrender.com
+
+# Browser Support
+Chrome >= 88
+Firefox >= 85
+Safari >= 14
+Edge >= 88
