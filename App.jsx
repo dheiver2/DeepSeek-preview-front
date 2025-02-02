@@ -1,18 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import axios from 'axios';
 import './App.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+// Configuração base do axios
+const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3000'
+});
 
 function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const [error, setError] = useState(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -22,20 +21,6 @@ function App() {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    // Teste de conexão com o backend ao carregar
-    const testConnection = async () => {
-      try {
-        await axios.get(`${API_URL}/health`);
-        setError(null);
-      } catch (err) {
-        setError('Unable to connect to the server. Please try again later.');
-        console.error('Connection test failed:', err);
-      }
-    };
-    testConnection();
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -44,75 +29,59 @@ function App() {
     setInput('');
     setMessages(prev => [...prev, { type: 'user', content: userMessage }]);
     setIsLoading(true);
-    setError(null);
 
     try {
-      const response = await axios.post(`${API_URL}/api/chat`, {
+      const response = await api.post('/api/chat', {
         message: userMessage
       });
 
-      setMessages(prev => [...prev, { 
-        type: 'assistant', 
-        content: response.data.response.message 
-      }]);
+      if (response.data && response.data.response) {
+        setMessages(prev => [...prev, { 
+          type: 'assistant', 
+          content: response.data.response.message 
+        }]);
+      } else {
+        throw new Error('Invalid response format');
+      }
     } catch (error) {
       console.error('Error:', error);
-      setError(error.response?.data?.error || 'An error occurred. Please try again.');
+      const errorMessage = error.response?.data?.error || 
+                          error.message || 
+                          'An unexpected error occurred';
+      
       setMessages(prev => [...prev, { 
         type: 'error', 
-        content: 'Sorry, there was an error. Please try again.' 
+        content: `Error: ${errorMessage}. Please try again.` 
       }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const CodeBlock = ({ language, value }) => {
-    return (
-      <SyntaxHighlighter 
-        language={language} 
-        style={dracula}
-        customStyle={{
-          margin: '0.5em 0',
-          borderRadius: '5px',
-          padding: '1em'
-        }}
-      >
-        {value}
-      </SyntaxHighlighter>
-    );
-  };
-
-  const renderMessage = (content) => {
-    return (
-      <ReactMarkdown
-        components={{
-          code: ({ node, inline, className, children, ...props }) => {
-            const match = /language-(\w+)/.exec(className || '');
-            return !inline && match ? (
-              <CodeBlock
-                language={match[1]}
-                value={String(children).replace(/\n$/, '')}
-                {...props}
-              />
-            ) : (
-              <code className={className} {...props}>
-                {children}
-              </code>
-            );
-          }
-        }}
-      >
-        {content}
-      </ReactMarkdown>
-    );
+  const formatMessage = (content) => {
+    if (!content) return '';
+    
+    // Detecta se o conteúdo parece ser código
+    const hasCode = content.includes('{') || 
+                   content.includes('function') || 
+                   content.includes('const') ||
+                   content.includes('let') ||
+                   content.includes('var');
+    
+    if (hasCode) {
+      return (
+        <pre className="code-block">
+          <code>{content}</code>
+        </pre>
+      );
+    }
+    return <p>{content}</p>;
   };
 
   return (
     <div className="app-container">
       <header className="header">
         <h1>DeepSeek Chat</h1>
-        {error && <div className="error-banner">{error}</div>}
       </header>
 
       <main className="chat-container">
@@ -122,12 +91,12 @@ function App() {
               key={index}
               className={`message ${message.type}`}
             >
-              {renderMessage(message.content)}
+              {formatMessage(message.content)}
             </div>
           ))}
           {isLoading && (
-            <div className="message assistant loading">
-              <div className="typing-indicator">
+            <div className="message assistant">
+              <div className="loading-indicator">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -145,10 +114,7 @@ function App() {
             placeholder="Type your message..."
             disabled={isLoading}
           />
-          <button 
-            type="submit" 
-            disabled={isLoading || !input.trim()}
-          >
+          <button type="submit" disabled={isLoading || !input.trim()}>
             {isLoading ? 'Sending...' : 'Send'}
           </button>
         </form>
