@@ -1,36 +1,12 @@
-# Backend Dependencies
-backend/
-  express@4.18.2
-  cors@2.8.5
-  dotenv@16.4.1
-  @huggingface/inference@2.6.4
-  express-rate-limit@7.1.5
-  nodemon@3.0.3 (dev dependency)
-
 # Frontend Dependencies
-frontend/
-  react@18.2.0
-  react-dom@18.2.0
-  axios@1.6.7
-  react-scripts@5.0.1
+react@18.2.0
+react-dom@18.2.0
+axios@1.6.7
+react-scripts@5.0.1
 
-# System Requirements
+# Development Requirements
 Node.js >= 18.0.0
 npm >= 8.0.0
 
-# Development Environment
-Visual Studio Code (recommended)
-Git
-Postman (for API testing)
-
-# Environment Variables Required
-HUGGINGFACE_API_KEY=your_api_key_here
-PORT=10000 (default)
-CORS_ORIGIN=http://localhost:3000 (default)
-
-# Browser Support
-Latest versions of:
-- Chrome
-- Firefox
-- Safari
-- Edge
+# Environment Variables
+REACT_APP_API_URL=https://deepseek-preview-api.onrender.com
