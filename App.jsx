@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -26,7 +28,7 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:10000/api/chat', {
+      const response = await axios.post(`${API_URL}/api/chat`, {
         message: userMessage
       });
 
@@ -45,9 +47,7 @@ function App() {
     }
   };
 
-  // Função auxiliar para formatar código se presente
   const formatMessage = (content) => {
-    // Verifica se a mensagem parece conter código (presença de caracteres comuns em código)
     const hasCode = content.includes('{') || content.includes('function') || content.includes('const');
     
     if (hasCode) {
